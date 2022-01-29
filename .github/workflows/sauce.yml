@@ -1,6 +1,8 @@
 name: Sauce Labs
 on: push
 concurrency: sauce-labs
+permissions:
+  contents: read
 jobs:
   test:
     runs-on: ubuntu-latest
