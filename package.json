@@ -1,11 +1,11 @@
 {
-  "name": "memdown",
+  "name": "memory-level",
   "version": "6.1.1",
   "description": "In-memory abstract-level database for Node.js and browsers",
   "author": "Rod Vagg <rod@vagg.org> (https://github.com/rvagg)",
   "license": "MIT",
-  "main": "memdown.js",
-  "types": "./memdown.d.ts",
+  "main": "index.js",
+  "types": "./index.d.ts",
   "scripts": {
     "test": "standard && ts-standard *.ts && hallmark && (nyc -s node test.js | faucet) && nyc report",
     "test-browsers": "airtap --coverage --verbose test.js",
@@ -13,8 +13,8 @@
     "coverage": "nyc report -r lcovonly"
   },
   "files": [
-    "memdown.js",
-    "memdown.d.ts",
+    "index.js",
+    "index.d.ts",
     "UPGRADING.md",
     "CHANGELOG.md"
   ],
@@ -38,9 +38,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Level/memdown.git"
+    "url": "https://github.com/Level/memory-level.git"
   },
-  "homepage": "https://github.com/Level/memdown",
+  "homepage": "https://github.com/Level/memory-level",
   "keywords": [
     "level",
     "leveldb",

@@ -100,4 +100,4 @@ Lastly, private properties like `_store` (unlikely used externally) are no longe
 
 ---
 
-_For earlier releases, before `memory-level` was forked from `memdown`, please see [the upgrade guide of `memdown`](https://github.com/Level/memdown/blob/master/UPGRADING.md)._
+_For earlier releases, before `memory-level` was forked from `memdown`, please see [the upgrade guide of `memdown`](https://github.com/Level/memdown/blob/HEAD/UPGRADING.md)._
