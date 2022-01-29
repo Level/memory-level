@@ -1,6 +1,8 @@
-# memdown
+# memory-level
 
-> In-memory [`abstract-leveldown`] store for Node.js and browsers.
+**In-memory [`abstract-level`][abstract-level] database for Node.js and browsers, backed by a [fully persistent red-black tree](https://www.npmjs.com/package/functional-red-black-tree).** The successor to [`memdown`](https://github.com/Level/memdown) and [`level-mem`](https://github.com/Level/mem).
+
+> :pushpin: Which module should I use? What is `abstract-level`? Head over to the [FAQ](https://github.com/Level/community#faq).
 
 [![level badge][level-badge]](https://github.com/Level/awesome)
 [![npm](https://img.shields.io/npm/v/memdown.svg)](https://www.npmjs.com/package/memdown)
@@ -11,109 +13,79 @@
 [![Common Changelog](https://common-changelog.org/badge.svg)](https://common-changelog.org)
 [![Donate](https://img.shields.io/badge/donate-orange?logo=open-collective&logoColor=fff)](https://opencollective.com/level)
 
-## Example
+## Usage
 
 _If you are upgrading: please see [`UPGRADING.md`](./UPGRADING.md)._
 
 ```js
-const levelup = require('levelup')
-const memdown = require('memdown')
+const { MemoryLevel } = require('memory-level')
 
-const db = levelup(memdown())
+// Create a database
+const db = new MemoryLevel({ valueEncoding: 'json' })
 
-db.put('hey', 'you', (err) => {
+// Add an entry with key 'a' and value 1
+await db.put('a', 1)
+
+// Add multiple entries
+await db.batch([{ type: 'put', key: 'b', value: 2 }])
+
+// Get value of key 'a': 1
+const value = await db.get('a')
+
+// Iterate entries with keys that are greater than 'a'
+for await (const [key, value] of db.iterator({ gt: 'a' })) {
+  console.log(value) // 2
+}
+```
+
+With callbacks:
+
+```js
+db.put('example', { hello: 'world' }, (err) => {
   if (err) throw err
 
-  db.get('hey', { asBuffer: false }, (err, value) => {
+  db.get('example', (err, value) => {
     if (err) throw err
-    console.log(value) // 'you'
+    console.log(value) // { hello: 'world' }
   })
 })
 ```
 
-With `async/await`:
+<!-- ## Browser support
 
-```js
-await db.put('hey', 'you')
-const value = await db.get('hey', { asBuffer: false })
-```
+[![Sauce Test Status](https://app.saucelabs.com/browser-matrix/level-ci.svg)](https://app.saucelabs.com/u/level-ci) -->
 
-Your data is discarded when the process ends or you release a reference to the store. Note as well, though the internals of `memdown` operate synchronously - [`levelup`] does not.
+## API
 
-## Browser support
+The API of `memory-level` follows that of [`abstract-level`](https://github.com/Level/abstract-level) with a one additional constructor option (see below). The `createIfMissing` and `errorIfExists` options of `abstract-level` are not relevant here. Data is discarded when the last reference to the database is released (i.e. `db = null`). Closing or reopening the database has no effect on the data. Data is _not_ copied: when storing a Buffer value for example, subsequent mutations to that Buffer will affect the stored data too.
 
-[![Sauce Test Status](https://app.saucelabs.com/browser-matrix/level-ci.svg)](https://app.saucelabs.com/u/level-ci)
+### `db = new MemoryLevel([options])`
 
-## Data types
+Besides `abstract-level` options, the optional `options` object may contain:
 
-Keys and values can be strings or Buffers. Any other key type will be irreversibly stringified. The only exceptions are `null` and `undefined`. Keys and values of that type are rejected.
+- `storeEncoding` (string): one of `'buffer'`, `'view'`, `'utf8'`. How to store data internally. This affects which data types can be stored non-destructively. The default is `'buffer'` (that means Buffer) which is non-destructive. In browsers it may be preferable to use `'view'` (Uint8Array) to be able to exclude the [`buffer`](https://github.com/feross/buffer) shim. Or if there's no need to store binary data, then `'utf8'` (String). Regardless of the `storeEncoding`, `memory-level` supports input that is of any of the aforementioned types, but internally converts it to one type in order to provide a consistent sort order.
 
-```js
-const db = levelup(memdown())
+## Install
 
-db.put('example', 123, (err) => {
-  if (err) throw err
-
-  db.createReadStream({
-    keyAsBuffer: false,
-    valueAsBuffer: false
-  }).on('data', (entry) => {
-    console.log(typeof entry.key) // 'string'
-    console.log(typeof entry.value) // 'string'
-  })
-})
-```
-
-If you desire non-destructive encoding (e.g. to store and retrieve numbers as-is), wrap `memdown` with [`encoding-down`]. Alternatively install [`level-mem`] which conveniently bundles [`levelup`], `memdown` and [`encoding-down`]. Such an approach is also recommended if you want to achieve universal (isomorphic) behavior. For example, you could have [`leveldown`] in a backend and `memdown` in the frontend.
-
-```js
-const encode = require('encoding-down')
-const db = levelup(encode(memdown(), { valueEncoding: 'json' }))
-
-db.put('example', 123, (err) => {
-  if (err) throw err
-
-  db.createReadStream({
-    keyAsBuffer: false,
-    valueAsBuffer: false
-  }).on('data', (entry) => {
-    console.log(typeof entry.key) // 'string'
-    console.log(typeof entry.value) // 'number'
-  })
-})
-```
-
-## Snapshot guarantees
-
-A `memdown` store is backed by [a fully persistent data structure](https://www.npmjs.com/package/functional-red-black-tree) and thus has snapshot guarantees. Meaning that reads operate on a snapshot in time, unaffected by simultaneous writes.
-
-## Test
-
-In addition to the regular `npm test`, you can test `memdown` in a browser of choice with:
+With [npm](https://npmjs.org) do:
 
 ```
-npm run test-browser-local
-```
-
-To check code coverage:
-
-```
-npm run coverage
+npm install memory-level
 ```
 
 ## Contributing
 
-[`Level/memdown`](https://github.com/Level/memdown) is an **OPEN Open Source Project**. This means that:
+[`Level/memory-level`](https://github.com/Level/memory-level) is an **OPEN Open Source Project**. This means that:
 
 > Individuals making significant and valuable contributions are given commit-access to the project to contribute as they see fit. This project is more like an open wiki than a standard guarded open source project.
 
 See the [Contribution Guide](https://github.com/Level/community/blob/master/CONTRIBUTING.md) for more details.
 
-## Big Thanks
+<!-- ## Big Thanks
 
 Cross-browser Testing Platform and Open Source ♥ Provided by [Sauce Labs](https://saucelabs.com).
 
-[![Sauce Labs logo](./sauce-labs.svg)](https://saucelabs.com)
+[![Sauce Labs logo](./sauce-labs.svg)](https://saucelabs.com) -->
 
 ## Donate
 
@@ -123,14 +95,6 @@ Support us with a monthly donation on [Open Collective](https://opencollective.c
 
 [MIT](LICENSE)
 
-[`abstract-leveldown`]: https://github.com/Level/abstract-leveldown
-
-[`levelup`]: https://github.com/Level/levelup
-
-[`encoding-down`]: https://github.com/Level/encoding-down
-
-[`leveldown`]: https://github.com/Level/leveldown
-
-[`level-mem`]: https://github.com/Level/mem
+[abstract-level]: https://github.com/Level/abstract-level
 
 [level-badge]: https://leveljs.org/img/badge.svg

@@ -1,14 +1,13 @@
 {
   "name": "memdown",
   "version": "6.1.1",
-  "description": "An drop-in replacement for LevelDOWN that works in memory only",
-  "authors": [
-    "Rod Vagg <rod@vagg.org> (https://github.com/rvagg)"
-  ],
+  "description": "In-memory abstract-level database for Node.js and browsers",
+  "author": "Rod Vagg <rod@vagg.org> (https://github.com/rvagg)",
   "license": "MIT",
   "main": "memdown.js",
+  "types": "./memdown.d.ts",
   "scripts": {
-    "test": "standard && hallmark && (nyc -s node test.js | faucet) && nyc report",
+    "test": "standard && ts-standard *.ts && hallmark && (nyc -s node test.js | faucet) && nyc report",
     "test-browsers": "airtap --coverage --verbose test.js",
     "test-browsers-local": "airtap --coverage -p local test.js",
     "coverage": "nyc report -r lcovonly",
@@ -18,27 +17,28 @@
   },
   "files": [
     "memdown.js",
+    "memdown.d.ts",
     "UPGRADING.md",
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "abstract-leveldown": "^7.2.0",
-    "buffer": "^6.0.3",
+    "abstract-level": "github:Level/abstract-level",
     "functional-red-black-tree": "^1.0.1",
-    "inherits": "^2.0.1",
-    "ltgt": "^2.2.0"
+    "module-error": "^1.0.1"
   },
   "devDependencies": {
+    "@voxpelli/tsconfig": "^3.1.0",
     "airtap": "^4.0.3",
     "airtap-playwright": "^1.0.1",
     "airtap-sauce": "^1.1.0",
+    "buffer": "^6.0.3",
     "dependency-check": "^3.3.0",
     "faucet": "^0.0.1",
     "hallmark": "^4.0.0",
-    "level-concat-iterator": "^3.0.0",
     "nyc": "^15.1.0",
     "standard": "^16.0.3",
-    "tape": "^5.0.1"
+    "tape": "^5.0.1",
+    "ts-standard": "^11.0.0"
   },
   "repository": {
     "type": "git",
@@ -53,6 +53,6 @@
     "memory"
   ],
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   }
 }

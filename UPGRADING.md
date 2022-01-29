@@ -1,111 +1,103 @@
 # Upgrade Guide
 
-This document describes breaking changes and how to upgrade. For a complete list of changes including minor and patch releases, please refer to the [`CHANGELOG`][changelog].
+This document describes breaking changes and how to upgrade. For a complete list of changes including minor and patch releases, please refer to the [`CHANGELOG`](CHANGELOG.md).
 
-## 6.0.0
+## 1.0.0
 
-Legacy range options have been removed ([Level/community#86](https://github.com/Level/community/issues/86)). If you previously did:
+**Introducing `memory-level`: a fork of [`memdown`](https://github.com/Level/memdown) that removes the need for [`level-mem`](https://github.com/Level/mem), [`levelup`](https://github.com/Level/levelup) and more. It implements the [`abstract-level`](https://github.com/Level/abstract-level) interface instead of [`abstract-leveldown`](https://github.com/Level/abstract-leveldown) and thus has the same API as `level-mem` and `levelup` including encodings, promises and events. In addition, you can now choose to use Uint8Array instead of Buffer. Sublevels are builtin.**
+
+We've put together several upgrade guides for different modules. See the [FAQ](https://github.com/Level/community#faq) to find the best upgrade guide for you. This upgrade guide describes how to replace `memdown` or `level-mem` with `memory-level`. If you are using any of the following, please also read the upgrade guide of [`abstract-level@1`](https://github.com/Level/abstract-level/blob/main/UPGRADING.md#100) which goes into more detail about these:
+
+- Specific error messages (replaced with error codes)
+- The callback argument of the constructor (gone)
+- The `'binary'` encoding (renamed to `'buffer'`, with `'binary'` as an alias)
+- The `db.iterator().end()` method (renamed to `close()`, with `end()` as an alias)
+- Zero-length keys and range options (now valid)
+- The `'ascii'`, `'ucs2'`, `'utf16le'` and `'id'` encodings (gone)
+- The undocumented `encoding` alias for the `valueEncoding` option (gone)
+- The `db.supports.bufferKeys` property.
+
+Support of Node.js 10 has been dropped.
+
+### Upgrade from `level-mem` to `memory-level`
+
+Using `new` is now required. If you previously did:
 
 ```js
-db.iterator({ start: 'a', end: 'z' })
+const mem = require('level-mem')
+const db1 = mem()
+const db2 = mem({ valueEncoding: 'json' })
 ```
 
-An error would now be thrown and you must instead do:
+You must now do:
 
 ```js
-db.iterator({ gte: 'a', lte: 'z' })
+const { MemoryLevel } = require('memory-level')
+const db1 = new MemoryLevel()
+const db2 = new MemoryLevel({ valueEncoding: 'json' })
 ```
 
-This release also drops support of legacy runtime environments ([Level/community#98](https://github.com/Level/community/issues/98)):
+Node.js readable streams must now be created with a new standalone module called [`level-read-stream`](https://github.com/Level/read-stream), rather than database methods like `db.createReadStream()`. Please see its [upgrade guide](https://github.com/Level/read-stream/blob/main/UPGRADING.md#100) for details.
 
-- Node.js 6 and 8
-- Internet Explorer 11
-- Safari 9-11
-- Stock Android browser (AOSP).
+### Upgrade from `memdown` to `memory-level`
 
-Lastly, and less likely to be a breaking change, the [`immediate`](https://github.com/calvinmetcalf/immediate) browser shim for `process.nextTick()` has been replaced with the smaller [`queue-microtask`](https://github.com/feross/queue-microtask).
+_This section is only relevant if you're using `memdown` directly, rather than as a transitive dependency of `level-mem`._
 
-## 5.0.0
-
-Support of keys & values other than strings and Buffers has been dropped. Internally `memdown` now stores keys & values as Buffers which solves a number of compatibility issues ([#186](https://github.com/Level/memdown/issues/186)). If you pass in a key or value that isn't a string or Buffer, it will be irreversibly stringified.
-
-## 4.0.0
-
-This is an upgrade to `abstract-leveldown@6` which solves long-standing issues around serialization and type support.
-
-### Range options are now serialized
-
-Previously, range options like `lt` were passed through as-is by `abstract-leveldown`, unlike keys. This makes no difference for `memdown` as it does not serialize anything.
-
-### The rules for range options have been relaxed
-
-Because `null`, `undefined`, zero-length strings and zero-length buffers are significant types in encodings like `bytewise` and `charwise`, they became valid as range options in `abstract-leveldown`. This means `db.iterator({ gt: undefined })` is not the same as `db.iterator({})`.
-
-For `memdown`, when used by itself, the behavior of `null`, `undefined`, zero-length strings and zero-length buffers is undefined.
-
-### Nullish values are rejected
-
-In addition to rejecting `null` and `undefined` as _keys_, `abstract-leveldown` now also rejects these types as _values_, due to preexisting significance in streams and iterators.
-
-### Zero-length array keys are rejected
-
-Though this was already the case, `abstract-leveldown` has replaced the behavior with an explicit `Array.isArray()` check and a new error message.
-
-### Browser support
-
-IE10 has been dropped.
-
-## 3.0.0
-
-Dropped support for node 4. No other breaking changes.
-
-## 2.0.0
-
-This release drops Node.js 0.12, brings `memdown` up to par with latest [`levelup`][levelup] (v2) and [`abstract-leveldown`][abstract-leveldown] (v4), simplifies serialization and removes global state.
-
-### Targets latest [`levelup`][levelup]
-
-Usage has changed to:
+The `asBuffer`, `valueAsBuffer` and `keyAsBuffer` options have been replaced with encoding options. The default encoding is `'utf8'` which means operations return strings rather than Buffers by default. If you previously did:
 
 ```js
-const levelup = require('levelup')
 const memdown = require('memdown')
+const db = memdown()
 
-const db = levelup(memdown())
+db.get('example', { asBuffer: false }, callback)
+db.get('example', callback)
 ```
 
-From the old:
+You must now do:
 
 ```js
-const db = levelup('mydb', { db: memdown })
+const { MemoryLevel } = require('memory-level')
+const db = new MemoryLevel()
+
+db.get('example', callback)
+db.get('example', { valueEncoding: 'buffer' }, callback)
 ```
 
-### No stringification of keys and values
-
-This means that in addition to Buffers, you can store any JS type without the need for [`encoding-down`][encoding-down]. This release also makes behavior consistent in Node.js and browsers. Please refer to the [README](./README.md) for a detailed explanation.
-
-### No global state or `location` argument
-
-If you previously did this to make a global store:
+Or using promises (new):
 
 ```js
-const db = levelup('mydb', { db: memdown })
+const str = await db.get('example')
+const buf = await db.get('example', { valueEncoding: 'buffer' })
 ```
 
-You must now attach the store to a global yourself (if you desire global state):
+Or using Uint8Array (new):
 
 ```js
-const db = window.mydb = levelup(memdown())
+const arr = await db.get('example', { valueEncoding: 'view' })
 ```
 
-### No `null` batch operations
+If you were wrapping `memdown` with `levelup`, `encoding-down` and / or `subleveldown`, remove those modules. If you previously did:
 
-Instead of skipping `null` operations, `db.batch([null])` will throw an error courtesy of [`abstract-leveldown`][abstract-leveldown].
+```js
+const memdown = require('memdown')
+const levelup = require('levelup')
+const enc = require('encoding-down')
+const subleveldown = require('subleveldown')
 
-[changelog]: CHANGELOG.md
+const db = levelup(enc(memdown()))
+const sublevel = subleveldown(db, 'foo')
+```
 
-[abstract-leveldown]: https://github.com/Level/abstract-leveldown
+You must now do:
 
-[levelup]: https://github.com/Level/levelup
+```js
+const { MemoryLevel } = require('memory-level')
+const db = new MemoryLevel()
+const sublevel = db.sublevel('foo')
+```
 
-[encoding-down]: https://github.com/Level/encoding-down
+Lastly, private properties like `_store` (unlikely used externally) are no longer accessible.
+
+---
+
+_For earlier releases, before `memory-level` was forked from `memdown`, please see [the upgrade guide of `memdown`](https://github.com/Level/memdown/blob/master/UPGRADING.md)._
