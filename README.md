@@ -5,8 +5,8 @@
 > :pushpin: Which module should I use? What is `abstract-level`? Head over to the [FAQ](https://github.com/Level/community#faq).
 
 [![level badge][level-badge]](https://github.com/Level/awesome)
-<!-- [![npm](https://img.shields.io/npm/v/memory-level.svg)](https://www.npmjs.com/package/memory-level) -->
-<!-- [![Node version](https://img.shields.io/node/v/memory-level.svg)](https://www.npmjs.com/package/memory-level) -->
+[![npm](https://img.shields.io/npm/v/memory-level.svg)](https://www.npmjs.com/package/memory-level)
+[![Node version](https://img.shields.io/node/v/memory-level.svg)](https://www.npmjs.com/package/memory-level)
 [![Test](https://img.shields.io/github/workflow/status/Level/memory-level/Test?label=test)](https://github.com/Level/memory-level/actions/workflows/test.yml)
 [![Coverage](https://img.shields.io/codecov/c/github/Level/memory-level?label=&logo=codecov&logoColor=fff)](https://codecov.io/gh/Level/memory-level)
 [![Standard](https://img.shields.io/badge/standard-informational?logo=javascript&logoColor=fff)](https://standardjs.com)
