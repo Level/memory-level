@@ -1,6 +1,6 @@
 {
   "name": "memory-level",
-  "version": "6.1.1",
+  "version": "1.0.0",
   "description": "In-memory abstract-level database for Node.js and browsers",
   "author": "Rod Vagg <rod@vagg.org> (https://github.com/rvagg)",
   "license": "MIT",
