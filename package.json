@@ -19,7 +19,7 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "abstract-level": "github:Level/abstract-level",
+    "abstract-level": "^1.0.0",
     "functional-red-black-tree": "^1.0.1",
     "module-error": "^1.0.1"
   },
