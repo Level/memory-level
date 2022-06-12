@@ -7,7 +7,7 @@
   "main": "index.js",
   "types": "./index.d.ts",
   "scripts": {
-    "test": "standard && ts-standard *.ts && hallmark && (nyc -s node test.js | faucet) && nyc report",
+    "test": "standard && hallmark && (nyc -s node test.js | faucet) && nyc report",
     "test-browsers": "airtap --coverage --verbose test.js",
     "test-browsers-local": "airtap --coverage -p local test.js",
     "coverage": "nyc report -r lcovonly"
@@ -32,9 +32,8 @@
     "faucet": "^0.0.1",
     "hallmark": "^4.0.0",
     "nyc": "^15.1.0",
-    "standard": "^16.0.3",
+    "standard": "^17.0.0",
     "tape": "^5.0.1",
-    "ts-standard": "^11.0.0",
     "typescript": "^4.5.5"
   },
   "repository": {
