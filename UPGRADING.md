@@ -2,6 +2,10 @@
 
 This document describes breaking changes and how to upgrade. For a complete list of changes including minor and patch releases, please refer to the [`CHANGELOG`](CHANGELOG.md).
 
+## 2.0.0
+
+This release upgrades to `abstract-level` 2.0.0 which adds [hooks](https://github.com/Level/abstract-level#hooks) and drops callbacks, not-found errors and support of Node.js < 16. Please refer to the [upgrade guide of `abstract-level`](https://github.com/Level/abstract-level/blob/v2.0.0/UPGRADING.md).
+
 ## 1.0.0
 
 **Introducing `memory-level`: a fork of [`memdown`](https://github.com/Level/memdown) that removes the need for [`level-mem`](https://github.com/Level/mem), [`levelup`](https://github.com/Level/levelup) and more. It implements the [`abstract-level`](https://github.com/Level/abstract-level) interface instead of [`abstract-leveldown`](https://github.com/Level/abstract-leveldown) and thus has the same API as `level-mem` and `levelup` including encodings, promises and events. In addition, you can now choose to use Uint8Array instead of Buffer. Sublevels are builtin.**

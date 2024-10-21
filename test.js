@@ -22,24 +22,16 @@ for (const storeEncoding of ['view', 'utf8']) {
 }
 
 // Additional tests for this implementation of abstract-level
-test('iterator does not clone buffers', function (t) {
+test('iterator does not clone buffers', async function (t) {
   const db = new MemoryLevel({ keyEncoding: 'buffer', valueEncoding: 'buffer' })
   const buf = Buffer.from('a')
 
-  db.open(function (err) {
-    t.ifError(err, 'no open() error')
+  await db.open()
+  await db.put(buf, buf)
 
-    db.put(buf, buf, function (err) {
-      t.ifError(err, 'no put() error')
-
-      db.iterator().all(function (err, entries) {
-        t.ifError(err, 'no all() error')
-        t.is(entries[0][0], buf, 'key is same buffer')
-        t.is(entries[0][1], buf, 'value is same buffer')
-        t.end()
-      })
-    })
-  })
+  const entries = await db.iterator().all()
+  t.is(entries[0][0], buf, 'key is same buffer')
+  t.is(entries[0][1], buf, 'value is same buffer')
 })
 
 test('throws on unsupported storeEncoding', function (t) {

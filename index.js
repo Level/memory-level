@@ -62,19 +62,19 @@ class MemoryIterator extends AbstractIterator {
     this[kInit](db[kTree], options)
   }
 
-  _next (callback) {
-    if (!this[kIterator].valid) return this.nextTick(callback)
+  async _next () {
+    if (!this[kIterator].valid) return undefined
 
     const key = this[kIterator].key
     const value = this[kIterator].value
 
-    if (!this[kTest](key)) return this.nextTick(callback)
+    if (!this[kTest](key)) return undefined
 
     this[kIterator][this[kAdvance]]()
-    this.nextTick(callback, null, key, value)
+    return [key, value]
   }
 
-  _nextv (size, options, callback) {
+  async _nextv (size, options) {
     const it = this[kIterator]
     const entries = []
 
@@ -83,10 +83,10 @@ class MemoryIterator extends AbstractIterator {
       it[this[kAdvance]]()
     }
 
-    this.nextTick(callback, null, entries)
+    return entries
   }
 
-  _all (options, callback) {
+  async _all (options) {
     const size = this.limit - this.count
     const it = this[kIterator]
     const entries = []
@@ -96,7 +96,7 @@ class MemoryIterator extends AbstractIterator {
       it[this[kAdvance]]()
     }
 
-    this.nextTick(callback, null, entries)
+    return entries
   }
 }
 
@@ -106,17 +106,17 @@ class MemoryKeyIterator extends AbstractKeyIterator {
     this[kInit](db[kTree], options)
   }
 
-  _next (callback) {
-    if (!this[kIterator].valid) return this.nextTick(callback)
+  async _next () {
+    if (!this[kIterator].valid) return undefined
 
     const key = this[kIterator].key
-    if (!this[kTest](key)) return this.nextTick(callback)
+    if (!this[kTest](key)) return undefined
 
     this[kIterator][this[kAdvance]]()
-    this.nextTick(callback, null, key)
+    return key
   }
 
-  _nextv (size, options, callback) {
+  async _nextv (size, options) {
     const it = this[kIterator]
     const keys = []
 
@@ -125,10 +125,10 @@ class MemoryKeyIterator extends AbstractKeyIterator {
       it[this[kAdvance]]()
     }
 
-    this.nextTick(callback, null, keys)
+    return keys
   }
 
-  _all (options, callback) {
+  async _all (options) {
     const size = this.limit - this.count
     const it = this[kIterator]
     const keys = []
@@ -138,7 +138,7 @@ class MemoryKeyIterator extends AbstractKeyIterator {
       it[this[kAdvance]]()
     }
 
-    this.nextTick(callback, null, keys)
+    return keys
   }
 }
 
@@ -148,19 +148,19 @@ class MemoryValueIterator extends AbstractValueIterator {
     this[kInit](db[kTree], options)
   }
 
-  _next (callback) {
-    if (!this[kIterator].valid) return this.nextTick(callback)
+  async _next (options) {
+    if (!this[kIterator].valid) return undefined
 
     const key = this[kIterator].key
     const value = this[kIterator].value
 
-    if (!this[kTest](key)) return this.nextTick(callback)
+    if (!this[kTest](key)) return undefined
 
     this[kIterator][this[kAdvance]]()
-    this.nextTick(callback, null, value)
+    return value
   }
 
-  _nextv (size, options, callback) {
+  async _nextv (size, options) {
     const it = this[kIterator]
     const values = []
 
@@ -169,10 +169,10 @@ class MemoryValueIterator extends AbstractValueIterator {
       it[this[kAdvance]]()
     }
 
-    this.nextTick(callback, null, values)
+    return values
   }
 
-  _all (options, callback) {
+  async _all (options) {
     const size = this.limit - this.count
     const it = this[kIterator]
     const values = []
@@ -182,7 +182,7 @@ class MemoryValueIterator extends AbstractValueIterator {
       it[this[kAdvance]]()
     }
 
-    this.nextTick(callback, null, values)
+    return values
   }
 }
 
@@ -270,6 +270,7 @@ class MemoryLevel extends AbstractLevel {
     }
 
     // To help migrating from level-mem to abstract-level
+    // TODO (v2): remove
     if (typeof location === 'function' || typeof options === 'function' || typeof _ === 'function') {
       throw new ModuleError('The levelup-style callback argument has been removed', {
         code: 'LEVEL_LEGACY'
@@ -291,13 +292,17 @@ class MemoryLevel extends AbstractLevel {
       permanence: false,
       createIfMissing: false,
       errorIfExists: false,
-      encodings: { [storeEncoding]: true }
+      encodings: { [storeEncoding]: true },
+      signals: {
+        // Would have no value here because the operations are synchronous
+        iterators: false
+      }
     }, forward)
 
     this[kTree] = createRBT(compare)
   }
 
-  _put (key, value, options, callback) {
+  async _put (key, value, options) {
     const it = this[kTree].find(key)
 
     if (it.valid) {
@@ -305,31 +310,22 @@ class MemoryLevel extends AbstractLevel {
     } else {
       this[kTree] = this[kTree].insert(key, value)
     }
-
-    this.nextTick(callback)
   }
 
-  _get (key, options, callback) {
-    const value = this[kTree].get(key)
-
-    if (typeof value === 'undefined') {
-      // TODO: use error code (not urgent, abstract-level normalizes this)
-      return this.nextTick(callback, new Error('NotFound'))
-    }
-
-    this.nextTick(callback, null, value)
+  async _get (key, options) {
+    // Is undefined if not found
+    return this[kTree].get(key)
   }
 
-  _getMany (keys, options, callback) {
-    this.nextTick(callback, null, keys.map(key => this[kTree].get(key)))
+  async _getMany (keys, options) {
+    return keys.map(key => this[kTree].get(key))
   }
 
-  _del (key, options, callback) {
+  async _del (key, options) {
     this[kTree] = this[kTree].remove(key)
-    this.nextTick(callback)
   }
 
-  _batch (operations, options, callback) {
+  async _batch (operations, options) {
     let tree = this[kTree]
 
     for (const op of operations) {
@@ -344,14 +340,13 @@ class MemoryLevel extends AbstractLevel {
     }
 
     this[kTree] = tree
-    this.nextTick(callback)
   }
 
-  _clear (options, callback) {
+  async _clear (options) {
     if (options.limit === -1 && !Object.keys(options).some(isRangeOption)) {
       // Delete everything by creating a new empty tree.
       this[kTree] = createRBT(compare)
-      return this.nextTick(callback)
+      return
     }
 
     const iterator = this._keys({ ...options })
@@ -359,12 +354,12 @@ class MemoryLevel extends AbstractLevel {
 
     let count = 0
 
-    const loop = () => {
+    while (true) {
       // TODO: add option to control "batch size"
       for (let i = 0; i < 500; i++) {
-        if (++count > limit) return callback()
-        if (!iterator[kIterator].valid) return callback()
-        if (!iterator[kTest](iterator[kIterator].key)) return callback()
+        if (++count > limit) return
+        if (!iterator[kIterator].valid) return
+        if (!iterator[kTest](iterator[kIterator].key)) return
 
         // Must also include changes made in parallel to clear()
         this[kTree] = this[kTree].remove(iterator[kIterator].key)
@@ -372,10 +367,8 @@ class MemoryLevel extends AbstractLevel {
       }
 
       // Some time to breathe
-      this.nextTick(loop)
+      await breathe()
     }
-
-    this.nextTick(loop)
   }
 
   _iterator (options) {
@@ -393,18 +386,17 @@ class MemoryLevel extends AbstractLevel {
 
 exports.MemoryLevel = MemoryLevel
 
-// Use setImmediate() in Node.js to allow IO in between our callbacks
+let breathe
+
+// Use setImmediate() in Node.js to allow IO in between work
 if (typeof process !== 'undefined' && !process.browser && typeof global !== 'undefined' && typeof global.setImmediate === 'function') {
   const setImmediate = global.setImmediate
 
-  // Automatically applies to iterators, sublevels and chained batches as well
-  MemoryLevel.prototype.nextTick = function (fn, ...args) {
-    if (args.length === 0) {
-      setImmediate(fn)
-    } else {
-      setImmediate(() => fn(...args))
-    }
+  breathe = function () {
+    return new Promise(setImmediate)
   }
+} else {
+  breathe = async function () {}
 }
 
 function isRangeOption (k) {
