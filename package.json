@@ -50,6 +50,6 @@
     "memory"
   ],
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   }
 }
