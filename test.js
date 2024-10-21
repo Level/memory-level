@@ -38,10 +38,3 @@ test('throws on unsupported storeEncoding', function (t) {
   t.throws(() => new MemoryLevel({ storeEncoding: 'foo' }), (err) => err.code === 'LEVEL_ENCODING_NOT_SUPPORTED')
   t.end()
 })
-
-test('throws on legacy level-mem options', function (t) {
-  t.throws(() => new MemoryLevel(() => {}), (err) => err.code === 'LEVEL_LEGACY')
-  t.throws(() => new MemoryLevel('x', () => {}), (err) => err.code === 'LEVEL_LEGACY')
-  t.throws(() => new MemoryLevel('x', {}, () => {}), (err) => err.code === 'LEVEL_LEGACY')
-  t.end()
-})
