@@ -38,19 +38,6 @@ for await (const [key, value] of db.iterator({ gt: 'a' })) {
 }
 ```
 
-With callbacks:
-
-```js
-db.put('example', { hello: 'world' }, (err) => {
-  if (err) throw err
-
-  db.get('example', (err, value) => {
-    if (err) throw err
-    console.log(value) // { hello: 'world' }
-  })
-})
-```
-
 <!-- ## Browser support
 
 [![Sauce Test Status](https://app.saucelabs.com/browser-matrix/level-ci.svg)](https://app.saucelabs.com/u/level-ci) -->

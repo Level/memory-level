@@ -1,8 +1,7 @@
 import {
   AbstractLevel,
   AbstractDatabaseOptions,
-  AbstractOpenOptions,
-  NodeCallback
+  AbstractOpenOptions
 } from 'abstract-level'
 
 /**
@@ -22,8 +21,6 @@ export class MemoryLevel<KDefault = string, VDefault = string>
 
   open (): Promise<void>
   open (options: OpenOptions): Promise<void>
-  open (callback: NodeCallback<void>): void
-  open (options: OpenOptions, callback: NodeCallback<void>): void
 }
 
 /**

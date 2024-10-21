@@ -7,7 +7,8 @@
   "main": "index.js",
   "types": "./index.d.ts",
   "scripts": {
-    "test": "standard && hallmark && (nyc -s node test.js | faucet) && nyc report",
+    "test": "standard && hallmark && (nyc -s node test.js | tap-arc) && nyc report",
+    "test-pessimistic": "node test.js | tap-arc -pv",
     "test-browsers": "airtap --coverage --verbose test.js",
     "test-browsers-local": "airtap --coverage -p local test.js",
     "coverage": "nyc report -r lcovonly"
@@ -19,22 +20,22 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "abstract-level": "^1.0.0",
+    "abstract-level": "^2.0.1",
     "functional-red-black-tree": "^1.0.1",
     "module-error": "^1.0.1"
   },
   "devDependencies": {
-    "@voxpelli/tsconfig": "^4.0.0",
+    "@voxpelli/tsconfig": "^15.0.0",
     "airtap": "^4.0.3",
     "airtap-playwright": "^1.0.1",
     "airtap-sauce": "^1.1.0",
     "buffer": "^6.0.3",
-    "faucet": "^0.0.3",
     "hallmark": "^4.0.0",
     "nyc": "^15.1.0",
     "standard": "^17.0.0",
+    "tap-arc": "^0.3.5",
     "tape": "^5.0.1",
-    "typescript": "^4.5.5"
+    "typescript": "^5.6.3"
   },
   "repository": {
     "type": "git",
@@ -49,6 +50,6 @@
     "memory"
   ],
   "engines": {
-    "node": ">=12"
+    "node": ">=16"
   }
 }
