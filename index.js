@@ -263,18 +263,10 @@ for (const Ctor of [MemoryIterator, MemoryKeyIterator, MemoryValueIterator]) {
 }
 
 class MemoryLevel extends AbstractLevel {
-  constructor (location, options, _) {
+  constructor (location, options) {
     // Take a dummy location argument to align with other implementations
     if (typeof location === 'object' && location !== null) {
       options = location
-    }
-
-    // To help migrating from level-mem to abstract-level
-    // TODO (v2): remove
-    if (typeof location === 'function' || typeof options === 'function' || typeof _ === 'function') {
-      throw new ModuleError('The levelup-style callback argument has been removed', {
-        code: 'LEVEL_LEGACY'
-      })
     }
 
     let { storeEncoding, ...forward } = options || {}
