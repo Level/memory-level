@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@voxpelli/tsconfig": "^15.0.0",
-    "airtap": "^4.0.3",
+    "airtap": "^5.0.0",
     "airtap-playwright": "^1.0.1",
     "airtap-sauce": "^1.1.0",
     "buffer": "^6.0.3",
