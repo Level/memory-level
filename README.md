@@ -40,7 +40,7 @@ for await (const [key, value] of db.iterator({ gt: 'a' })) {
 
 ## API
 
-The API of `memory-level` follows that of [`abstract-level`](https://github.com/Level/abstract-level) with a one additional constructor option (see below). The `createIfMissing` and `errorIfExists` options of `abstract-level` are not relevant here. Data is discarded when the last reference to the database is released (i.e. `db = null`). Closing or reopening the database has no effect on the data. Data is _not_ copied: when storing a Buffer value for example, subsequent mutations to that Buffer will affect the stored data too.
+The API of `memory-level` follows that of [`abstract-level`](https://github.com/Level/abstract-level) with one additional constructor option (see below). The `createIfMissing` and `errorIfExists` options of `abstract-level` are not relevant here. Both implicit and explicit snapshots are supported. Data is discarded when the last reference to the database is released (i.e. `db = null`). Closing or reopening the database has no effect on the data. Data is _not_ copied: when storing a Buffer value for example, subsequent mutations to that Buffer will affect the stored data too.
 
 ### `db = new MemoryLevel([options])`
 

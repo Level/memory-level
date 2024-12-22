@@ -4,7 +4,8 @@ const {
   AbstractLevel,
   AbstractIterator,
   AbstractKeyIterator,
-  AbstractValueIterator
+  AbstractValueIterator,
+  AbstractSnapshot
 } = require('abstract-level')
 
 const ModuleError = require('module-error')
@@ -59,7 +60,7 @@ function lte (value) {
 class MemoryIterator extends AbstractIterator {
   constructor (db, options) {
     super(db, options)
-    this[kInit](db[kTree], options)
+    this[kInit](db, options)
   }
 
   async _next () {
@@ -103,7 +104,7 @@ class MemoryIterator extends AbstractIterator {
 class MemoryKeyIterator extends AbstractKeyIterator {
   constructor (db, options) {
     super(db, options)
-    this[kInit](db[kTree], options)
+    this[kInit](db, options)
   }
 
   async _next () {
@@ -145,7 +146,7 @@ class MemoryKeyIterator extends AbstractKeyIterator {
 class MemoryValueIterator extends AbstractValueIterator {
   constructor (db, options) {
     super(db, options)
-    this[kInit](db[kTree], options)
+    this[kInit](db, options)
   }
 
   async _next (options) {
@@ -187,7 +188,11 @@ class MemoryValueIterator extends AbstractValueIterator {
 }
 
 for (const Ctor of [MemoryIterator, MemoryKeyIterator, MemoryValueIterator]) {
-  Ctor.prototype[kInit] = function (tree, options) {
+  Ctor.prototype[kInit] = function (db, options) {
+    const tree = options.snapshot != null
+      ? options.snapshot[kTree]
+      : db[kTree]
+
     this[kReverse] = options.reverse
     this[kOptions] = options
 
@@ -281,6 +286,7 @@ class MemoryLevel extends AbstractLevel {
 
     super({
       seek: true,
+      explicitSnapshots: true,
       permanence: false,
       createIfMissing: false,
       errorIfExists: false,
@@ -305,12 +311,20 @@ class MemoryLevel extends AbstractLevel {
   }
 
   async _get (key, options) {
+    const tree = options.snapshot != null
+      ? options.snapshot[kTree]
+      : this[kTree]
+
     // Is undefined if not found
-    return this[kTree].get(key)
+    return tree.get(key)
   }
 
   async _getMany (keys, options) {
-    return keys.map(key => this[kTree].get(key))
+    const tree = options.snapshot != null
+      ? options.snapshot[kTree]
+      : this[kTree]
+
+    return keys.map(getFromThis, tree)
   }
 
   async _del (key, options) {
@@ -335,7 +349,7 @@ class MemoryLevel extends AbstractLevel {
   }
 
   async _clear (options) {
-    if (options.limit === -1 && !Object.keys(options).some(isRangeOption)) {
+    if (options.limit === -1 && !Object.keys(options).some(isRangeOption) && !options.snapshot) {
       // Delete everything by creating a new empty tree.
       this[kTree] = createRBT(compare)
       return
@@ -374,6 +388,17 @@ class MemoryLevel extends AbstractLevel {
   _values (options) {
     return new MemoryValueIterator(this, options)
   }
+
+  _snapshot (options) {
+    return new MemorySnapshot(this[kTree], options)
+  }
+}
+
+class MemorySnapshot extends AbstractSnapshot {
+  constructor (tree, options) {
+    super(options)
+    this[kTree] = tree
+  }
 }
 
 exports.MemoryLevel = MemoryLevel
@@ -389,6 +414,10 @@ if (typeof process !== 'undefined' && !process.browser && typeof global !== 'und
   }
 } else {
   breathe = async function () {}
+}
+
+function getFromThis (key) {
+  return this.get(key)
 }
 
 function isRangeOption (k) {
