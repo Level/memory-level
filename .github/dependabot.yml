@@ -7,6 +7,11 @@ updates:
     ignore:
       - dependency-name: standard
       - dependency-name: ts-standard
+      - dependency-name: voxpelli/tsconfig
+      - dependency-name: typescript
+      - dependency-name: hallmark
+      - dependency-name: "@babel/preset-env"
+      - dependency-name: babelify
   - package-ecosystem: github-actions
     directory: /
     schedule:

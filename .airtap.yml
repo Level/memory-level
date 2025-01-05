@@ -1,22 +1,13 @@
 providers:
-  - airtap-sauce
+  - airtap-playwright
 
 browsers:
-  - name: chrome
+  - name: chromium
   - name: firefox
-  - name: safari
-    version: 12..latest
-  - name: ios_saf
-    version: 12..latest
-  - name: chrome for android
-    version: 6..latest
-  - name: msedge
+  - name: webkit
 
-presets:
-  local:
-    providers:
-      - airtap-playwright
-    browsers:
-      - name: chromium
-      - name: firefox
-      - name: webkit
+# Until airtap switches to rollup
+browserify:
+  - transform: babelify
+    global: true
+    presets: ["@babel/preset-env"]

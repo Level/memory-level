@@ -2,7 +2,7 @@
 
 **In-memory [`abstract-level`][abstract-level] database for Node.js and browsers, backed by a [fully persistent red-black tree](https://www.npmjs.com/package/functional-red-black-tree).** The successor to [`memdown`](https://github.com/Level/memdown) and [`level-mem`](https://github.com/Level/mem).
 
-> :pushpin: Which module should I use? What is `abstract-level`? Head over to the [FAQ](https://github.com/Level/community#faq).
+> :pushpin: Wondering what happened to `levelup`? Visit [Frequently Asked Questions](https://github.com/Level/community#faq).
 
 [![level badge][level-badge]](https://github.com/Level/awesome)
 [![npm](https://img.shields.io/npm/v/memory-level.svg)](https://www.npmjs.com/package/memory-level)
@@ -38,10 +38,6 @@ for await (const [key, value] of db.iterator({ gt: 'a' })) {
 }
 ```
 
-<!-- ## Browser support
-
-[![Sauce Test Status](https://app.saucelabs.com/browser-matrix/level-ci.svg)](https://app.saucelabs.com/u/level-ci) -->
-
 ## API
 
 The API of `memory-level` follows that of [`abstract-level`](https://github.com/Level/abstract-level) with a one additional constructor option (see below). The `createIfMissing` and `errorIfExists` options of `abstract-level` are not relevant here. Data is discarded when the last reference to the database is released (i.e. `db = null`). Closing or reopening the database has no effect on the data. Data is _not_ copied: when storing a Buffer value for example, subsequent mutations to that Buffer will affect the stored data too.
@@ -67,12 +63,6 @@ npm install memory-level
 > Individuals making significant and valuable contributions are given commit-access to the project to contribute as they see fit. This project is more like an open wiki than a standard guarded open source project.
 
 See the [Contribution Guide](https://github.com/Level/community/blob/master/CONTRIBUTING.md) for more details.
-
-<!-- ## Big Thanks
-
-Cross-browser Testing Platform and Open Source ♥ Provided by [Sauce Labs](https://saucelabs.com).
-
-[![Sauce Labs logo](./sauce-labs.svg)](https://saucelabs.com) -->
 
 ## License
 
