@@ -290,6 +290,7 @@ class MemoryLevel extends AbstractLevel {
       permanence: false,
       createIfMissing: false,
       errorIfExists: false,
+      has: true,
       encodings: { [storeEncoding]: true },
       signals: {
         // Would have no value here because the operations are synchronous
@@ -325,6 +326,20 @@ class MemoryLevel extends AbstractLevel {
       : this[kTree]
 
     return keys.map(getFromThis, tree)
+  }
+
+  async _has (key, options) {
+    const tree = options.snapshot != null
+      ? options.snapshot[kTree]
+      : this[kTree]
+    return tree.get(key) !== undefined
+  }
+
+  async _hasMany (keys, options) {
+    const tree = options.snapshot != null
+      ? options.snapshot[kTree]
+      : this[kTree]
+    return keys.map(has, tree)
   }
 
   async _del (key, options) {
@@ -422,4 +437,8 @@ function getFromThis (key) {
 
 function isRangeOption (k) {
   return rangeOptions.has(k)
+}
+
+function has (key) {
+  return this.get(key) !== undefined
 }
