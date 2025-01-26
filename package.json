@@ -20,7 +20,7 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "abstract-level": "^3.0.0",
+    "abstract-level": "^3.0.1",
     "functional-red-black-tree": "^1.0.1",
     "module-error": "^1.0.1"
   },

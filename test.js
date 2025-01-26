@@ -38,3 +38,25 @@ test('throws on unsupported storeEncoding', function (t) {
   t.throws(() => new MemoryLevel({ storeEncoding: 'foo' }), (err) => err.code === 'LEVEL_ENCODING_NOT_SUPPORTED')
   t.end()
 })
+
+test('clear() waits a tick every 500 items', async function (t) {
+  const db = new MemoryLevel()
+  const batch = Array(1000)
+
+  for (let i = 0; i < batch.length; i++) {
+    batch[i] = { type: 'put', key: i, value: i }
+  }
+
+  await db.open()
+  await db.batch(batch)
+
+  t.is((await db.keys().all()).length, batch.length)
+
+  // This just checks that the code runs OK, not that it waits a
+  // tick (TODO). Pass in a limit in order to use an iterator
+  // instead of the fast-path of clear() that just deletes all.
+  await db.clear({ limit: batch.length * 2 })
+
+  t.is((await db.keys().all()).length, 0)
+  return db.close()
+})
