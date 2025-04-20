@@ -37,6 +37,7 @@ class MemoryLevel extends AbstractLevel {
       createIfMissing: false,
       errorIfExists: false,
       has: true,
+      getSync: true,
       encodings: { [storeEncoding]: true },
       signals: {
         // Would have no value here because the operations are synchronous
@@ -58,6 +59,11 @@ class MemoryLevel extends AbstractLevel {
   }
 
   async _get (key, options) {
+    const tree = options.snapshot?.[kTree] ?? this.#tree
+    return tree.get(key)
+  }
+
+  _getSync (key, options) {
     const tree = options.snapshot?.[kTree] ?? this.#tree
     return tree.get(key)
   }
