@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.1.0] - 2025-04-20
+
+### Added
+
+- Implement `db.getSync()` ([#21](https://github.com/Level/memory-level/issues/21)) ([`b5f5c52`](https://github.com/Level/memory-level/commit/b5f5c52)) (Vincent Weevers)
+
 ## [3.0.0] - 2025-01-26
 
 _Would you mind voting in this [community poll](https://github.com/orgs/Level/discussions/143)? Thank you! If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)._
@@ -34,6 +40,8 @@ _If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)._
 ## [1.0.0] - 2022-01-30
 
 _:seedling: Initial release. If you are upgrading from `memdown`: please see [`UPGRADING.md`](./UPGRADING.md)._
+
+[3.1.0]: https://github.com/Level/memory-level/releases/tag/v3.1.0
 
 [3.0.0]: https://github.com/Level/memory-level/releases/tag/v3.0.0
 
